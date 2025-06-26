@@ -1,4 +1,3 @@
-# etl/connector.py
 import xmlrpc.client
 import logging
 from typing import List, Optional, Any, Dict

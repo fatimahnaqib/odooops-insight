@@ -1,4 +1,3 @@
-# tests/test_connector.py
 import pytest
 from unittest.mock import MagicMock, patch
 from etl.connector import OdooConnector
@@ -11,4 +10,3 @@ def test_authenticate_success(mock_server_proxy):
 
     conn = OdooConnector("http://localhost:8069", "test_db", "user", "pass")
     assert conn.uid == 123
-    

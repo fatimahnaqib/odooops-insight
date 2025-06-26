@@ -1,4 +1,3 @@
-# etl/load_to_postgres.py
 from typing import Optional
 import pandas as pd
 import psycopg2

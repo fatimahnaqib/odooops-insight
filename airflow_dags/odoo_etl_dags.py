@@ -1,4 +1,3 @@
-# airflow_dags/odoo_etl_dags.py
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from datetime import datetime, timedelta

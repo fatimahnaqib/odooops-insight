@@ -1,4 +1,3 @@
-# etl/run_extracts.py
 from typing import NoReturn
 import os
 import pandas as pd

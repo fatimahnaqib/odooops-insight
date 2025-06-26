@@ -1,4 +1,3 @@
-# etl/extractor.py
 from typing import List, Optional
 import os
 import pandas as pd
