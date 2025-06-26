@@ -1,0 +1,146 @@
+version: '3.8'
+
+services:
+  # --- Odoo DB ---
+  odoo-db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: odooops_db
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data
+    networks:
+      - odooops-net
+
+  #--- Analytic DB ---
+  analytics-db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: analytics
+      POSTGRES_USER: analyst
+      POSTGRES_PASSWORD: analyst
+    ports:
+      - "5434:5432"  
+    volumes:
+      - analytics-db-data:/var/lib/postgresql/data
+    networks:
+      - odooops-net
+
+  # --- Odoo Web ---
+  odoo-web:
+    image: odoo:15
+    depends_on:
+      - odoo-db
+    environment:
+      HOST: odoo-db
+      USER: odoo
+      PASSWORD: odoo
+    ports:
+      - "8069:8069"
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+      - ./odoo/addons:/mnt/extra-addons
+    networks:
+      - odooops-net
+    env_file:
+      - .env
+
+  # --- Airflow DB ---
+  airflow-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - airflow-db-data:/var/lib/postgresql/data
+    networks:
+      - odooops-net
+
+  # --- Airflow Webserver ---
+  airflow-webserver:
+    image: apache/airflow:2.7.2
+    depends_on:
+      - airflow-db
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-db:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./airflow_dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./etl:/opt/airflow/etl
+      - ./config:/opt/airflow/config
+      - ./outputs:/opt/airflow/outputs
+    networks:
+      - odooops-net
+    command: >
+      /bin/bash -c "
+      airflow db migrate &&
+      airflow users create \
+        --username admin \
+        --firstname Fatimah \
+        --lastname Naqib \
+        --role Admin \
+        --email admin@example.com \
+        --password admin &&
+      airflow webserver"
+    env_file:
+      - .env
+
+  # --- Airflow Scheduler ---
+  airflow-scheduler:
+    image: apache/airflow:2.7.2
+    depends_on:
+      - airflow-db
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-db:5432/airflow
+    volumes:
+      - ./airflow_dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./etl:/opt/airflow/etl
+      - ./config:/opt/airflow/config
+      - ./outputs:/opt/airflow/outputs
+    networks:
+      - odooops-net
+    command: scheduler
+    env_file:
+      - .env
+
+  # --- Superset ---
+  superset:
+    image: apache/superset:2.1.0
+    container_name: superset
+    depends_on:
+      - analytics-db
+    ports:
+      - "8088:8088"
+    environment:
+      - SUPERSET_LOAD_EXAMPLES=no
+      - SUPERSET_SECRET_KEY=supersecretkey
+    volumes:
+      - superset_home:/app/superset_home
+    networks:
+      - odooops-net
+    command: >
+      /bin/bash -c "
+      superset db upgrade &&
+      superset fab create-admin --username admin --firstname Superset --lastname Admin --email admin@example.com --password admin &&
+      superset init &&
+      superset run -h 0.0.0.0 -p 8088"
+
+
+volumes:
+  odoo-db-data:
+  odoo-web-data:
+  airflow-db-data:
+  analytics-db-data:
+  superset_home:
+
+networks:
+  odooops-net:
+
