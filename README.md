@@ -187,7 +187,7 @@ Database: analytics
 Username: analyst
 Password: analyst
 ```
-4. Click Test Connection, then Connect
+4. Click Connect
 5. Import tables and create charts/dashboards
 
 ---
