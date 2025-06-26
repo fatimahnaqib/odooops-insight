@@ -32,7 +32,7 @@ This project builds a complete data engineering pipeline using Odoo 15 as the da
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/odooops-insight.git
+git clone https://github.com/fatimahnaqib/odooops-insight.git
 cd odooops-insight
 ```
 
@@ -97,7 +97,7 @@ Navigate to **Apps**, remove the “Apps” filter (if nothing shows up), then c
 
 ---
 
-## 👨‍👩‍👧‍👦 Create or import test data:
+## Create or import test data:
 
 - Add a few **customers**
 - Create a few **products**
@@ -169,7 +169,7 @@ odooops-insight/
 ├── docker-compose.yml      # Docker Compose config
 ├── README.md               # This file
 └── requirements.txt        # Python dependencies
-
+```
 ---
 
 ## 📊 Superset Setup Notes
